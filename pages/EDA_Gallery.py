@@ -20,6 +20,7 @@ Dataset Analysis [Netflix Movies and TV Shows Comprehensive Catalogs](https://ww
 
 )
 
+
 df = pd.read_csv('data/netflix_titles.csv', usecols=[0,1,2,3,5,7,8,9,10], low_memory=False)
 
 
@@ -44,11 +45,11 @@ def season_bargraph():
         template="plotly_dark"
     )
 
-    fig.show()
+    return fig   # ← Important
 
 
 col = st.columns((2,2), gap='medium')
 
 with col[0]:
-    season_bargraph()
-
+    fig = season_bargraph()
+    st.plotly_chart(fig, use_container_width=True)
