@@ -22,6 +22,7 @@ Dataset Analysis [Netflix Movies and TV Shows Comprehensive Catalogs](https://ww
 
 
 df = pd.read_csv('data/netflix_titles.csv', usecols=[0,1,2,3,5,7,8,9,10], low_memory=False)
+df = df.dropna(subset=['type', 'country', 'duration'])
 
 
 def season_bargraph():
