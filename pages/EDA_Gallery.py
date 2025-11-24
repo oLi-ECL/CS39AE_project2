@@ -24,7 +24,7 @@ Dataset Analysis [Netflix Movies and TV Shows Comprehensive Catalogs](https://ww
 df = pd.read_csv('data/netflix_titles.csv', usecols=[0,1,2,3,5,7,8,9,10], low_memory=False)
 df = df.dropna(subset=['type', 'country', 'duration'])
 
-
+# 1st Graph
 def season_bargraph():
     shows = df[df["type"] == "TV Show"].copy()
     shows["seasons"] = shows["duration"].str.extract(r"(\d+)").astype(int)
@@ -48,7 +48,7 @@ def season_bargraph():
 
     return fig  
 
-
+#2nd Graph
 def dur_movies_bargraph():
     movies = df[df["type"] == "Movie"].copy()
     movies["durations"] = movies["duration"].str.extract(r"(\d+)").astype(int)
@@ -60,13 +60,14 @@ def dur_movies_bargraph():
  
     duration_counts = movies["duration_bin"].value_counts().sort_index()
 
-    fig = go.Bar(
+    fig = go.Figure(
+        go.Bar(
             x=duration_counts.index,
             y=duration_counts.values,
             marker_color="#E50914"   # Netflix red
         )
+    )
     
-
     fig.update_layout(
         title="Distribution of Movie Durations (Minutes)",
         xaxis_title="Duration Range (Minutes)",
@@ -75,11 +76,6 @@ def dur_movies_bargraph():
     )
 
     return fig
-
-
-
-
-
 
 
 
