@@ -5,19 +5,31 @@ import plotly.graph_objects as go
 import seaborn as sn
 
 
+#[theme]
+#base = 'light'
+
 st.set_page_config(page_title='CS-39AE Project2',
                    page_icon='Movies', layout='wide')
 
 
 st.markdown(
 
-"""
+'''
+<style>
+    .stApp 
+        background-color: #FFFFFF;  
+
+
+</style>
+
+
 ### **Netflix - Movies and TV Shows** 
 
 
 Dataset Analysis [Netflix Movies and TV Shows Comprehensive Catalogs](https://www.kaggle.com/datasets/kainatjamil12/niteee)
-"""
 
+
+''', unsafe_allow_html=True
 )
 
 
@@ -26,68 +38,99 @@ df = df.dropna(subset=['type', 'country', 'duration'])
 
 # 1st Graph
 def season_bargraph():
-    shows = df[df["type"] == "TV Show"].copy()
-    shows["seasons"] = shows["duration"].str.extract(r"(\d+)").astype(int)
+    shows = df[df['type'] == 'TV Show'].copy()
+    shows['seasons'] = shows['duration'].str.extract(r'(\d+)').astype(int)
+    showsC = shows['seasons'].value_counts().sort_index().reset_index()
 
-    season = shows["seasons"].value_counts().sort_index()
+    fig = px.bar(showsC,
+        x='seasons',
+        y='count',
+        color='count',
+        color_continuous_scale=[ '#FF5A5A','#E50914'],  
+        labels={'seasons': 'Number of Seasons: ', 'count': '# of TV Shows: '},
+        title='Distribution of TV Show Seasons'
+    )
 
-    fig = go.Figure(
-        go.Bar(
-            x=season.index,
-            y=season.values,
-            marker_color="#E50914"
-    )
-    )
 
     fig.update_layout(
-        title="Distribution of TV Show Seasons",
-        xaxis_title="Number of Seasons",
-        yaxis_title="Number of TV Shows",
-        template="plotly_white"
+        font=dict(color='black', size=14),
+        xaxis=dict(title='Number of Seasons'),
+        yaxis=dict(title='Number of TV Shows')
     )
 
-    return fig  
+    fig.update_traces(textposition='none', showlegend=False)
+
+    return fig
+    
 
 #2nd Graph
 def dur_movies_bargraph():
-    movies = df[df["type"] == "Movie"].copy()
-    movies["durations"] = movies["duration"].str.extract(r"(\d+)").astype(int)
+    movies = df[df['type'] == 'Movie'].copy()
+    movies['durations'] = movies['duration'].str.extract(r'(\d+)').astype(int)
 
     bins = [0, 60, 90, 120, 150, 200, 300]
-    labels = ["0–60", "61–90", "91–120", "121–150", "151–200", "200+"]
-    movies["duration_bin"] = pd.cut(movies["durations"], bins=bins, labels=labels, right=False)
+    labels = ['0–60', '61–90', '91–120', '121–150', '151–200', '200+']
+    movies['duration(mins)'] = pd.cut(movies['durations'], bins=bins, labels=labels, right=False)
+    moviesB = movies['duration(mins)'].value_counts().sort_index().reset_index()
 
- 
-    duration_counts = movies["duration_bin"].value_counts().sort_index()
-
-    fig = go.Figure(
-        go.Bar(
-            x=duration_counts.index,
-            y=duration_counts.values,
-            marker_color="#E50914"   # Netflix red
-        )
+    fig = px.bar(moviesB,
+        x='duration(mins)',
+        y='count',
+        color='count',
+        color_continuous_scale=['#FF5A5A','#E50914'], 
+        labels={'duration(mins)': 'Durations (Minutes)', 'count': 'Number of Movies'},
+        title='Distribution of Movie Durations (Minutes)'
     )
-    
+
     fig.update_layout(
-        title="Distribution of Movie Durations (Minutes)",
-        xaxis_title="Duration Range (Minutes)",
-        yaxis_title="Number of Movies",
-        template="plotly_white"
+        font=dict(color='black', size=14),
+        xaxis=dict(title='Duration (Mins)'),
+        yaxis=dict(title='Number of Movies')
+    )
+    fig.update_traces(textposition='none', showlegend=False)
+    return fig
+
+#3rd graph
+
+def rating_pie():
+    rating_counts = df['rating'].value_counts().reset_index()
+    #print(rating_counts)
+
+    high_contrast_colors = ['#E50914', '#0A84FF',  '#34C759',  '#FF9500','#AF52DE',  '#FFD60A',  '#FF2D55']
+
+    fig = px.pie(rating_counts,
+        names='rating',
+        values='count',
+        title='Distribution of Ratings',
+        labels={'rating': 'Rating', 'count': 'Number'},
+        color='rating',
+        color_discrete_sequence= high_contrast_colors)
+
+    fig.update_layout(
+        template='plotly_white',
+        font=dict(color='black', size=14),
+        title_x=0.5
     )
 
     return fig
 
 
 
-
-col = st.columns((2,2), gap='medium')
+col = st.columns((2,2), gap='medium', border=True)
 
 with col[0]:
-    fig = season_bargraph()
-    st.plotly_chart(fig, use_container_width=True)
+    st.markdown('')
+    fig1 = season_bargraph()
+    fig3 = rating_pie()
+    st.plotly_chart(fig1, width='stretch')
+    st.plotly_chart(fig3, width='stretch')
+    
 
 with col[1]:
-    fig = dur_movies_bargraph()
-    st.plotly_chart(fig, use_container_width=True)
+    st.markdown('')
+    fig2 = dur_movies_bargraph()
+    st.plotly_chart(fig2, width='stretch')
+
+
 
 
